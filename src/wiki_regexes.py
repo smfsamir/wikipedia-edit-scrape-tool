@@ -41,3 +41,8 @@ fourth_heading_separation = re.compile(r"\s#{4}\s{1}(.*?)\s{2}(.*?)(?=\s+#{4}\s+
 link = re.compile(r"\[(.*)?\]\(.*?\)")
 cut_first_table = re.compile(r"(.*?)(\*\*.+?\*\*.+)")
 link_number = re.compile(r"\[[0-9]+\]")
+
+paren = re.compile(r"[\(（].*?[\)）]")
+# paren_zh = re.compile(r"（.*?）")
+paren_zh2 = re.compile(r"《(.*?)》")
+paren_fr = re.compile(r"«(.*?)»")
