@@ -1,0 +1,1 @@
+TARGET_LANGUAGES = ['enwiki', 'kowiki', 'frwiki', 'eswiki', 'ruwiki']
