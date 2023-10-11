@@ -15,4 +15,5 @@ def get_last_snapshot(edit_history_obj: Dict[str, Any],
     return final_snapshot
 
 def get_categories(snapshot: WikipageSnapshot) -> List[str]:
-    return snapshot.content['categories'] # NOTE will return an empty list unless you it's an English snapshot
+    # -1 since the 0 index is the link to the snapshot
+    return snapshot.content[-1]['categories'] # NOTE will return an empty list unless you it's an English snapshot
