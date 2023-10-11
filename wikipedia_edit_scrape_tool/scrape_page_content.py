@@ -1,3 +1,4 @@
+from urllib.parse import urlparse, parse_qs
 import bs4
 import requests
 import re
@@ -231,7 +232,10 @@ def get_info(wiki_link: str, lang_wiki: str):
         Tuple[str, Dict[str, Any]]: _description_
     """
     wiki_link = wiki_link.replace("/wiki/","")
-    person_id = os.path.basename(wiki_link)
+    # link is of the form 'https://en.wikipedia.org/w/index.php?title=Scottie_Barnes&oldid=910610546'
+    # get the title 
+    person_id = urlparse(wiki_link).query['title'][0]
+
     person_info = {}
     person_info["langs"] = get_lang(wiki_link) # TODO: needs to be replaced.
     person_info["categories"] = get_category(person_id, lang_wiki) # 
