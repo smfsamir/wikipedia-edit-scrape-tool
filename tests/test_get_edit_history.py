@@ -1,3 +1,4 @@
+import ipdb
 import pytest
 from wikipedia_edit_scrape_tool.scrape_edit_history import get_edit_history, get_edit_history_metadata, get_edit_history_metadata_all_languages, parse_wikipedia_korean_datetime_format, convert_edit_diff_to_int
 from wikipedia_edit_scrape_tool.scrape_edit_history import WikipageSnapshot
@@ -16,6 +17,7 @@ def test_get_last_snapshot(sample_edit_history_object_english_only):
 
 def test_get_categories(sample_edit_history_object_english_only):
     last_snapshot = get_last_snapshot(sample_edit_history_object_english_only, "enwiki")
+    ipdb.set_trace()
     assert "Living people" in get_categories(last_snapshot)
 
 def test_get_edit_history():
