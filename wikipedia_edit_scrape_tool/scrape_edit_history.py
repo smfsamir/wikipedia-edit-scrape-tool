@@ -188,9 +188,9 @@ def get_multilingual_wikilinks_mediawiki(en_wiki_id, wiki_languages=TARGET_LANGU
             lang_to_wikilinks['frwiki'] = french_link
         else:
             logger.warning(f"Could not find French link for {en_wiki_id}")
-    if 'eswiki' not in lang_to_wikilinks:
+    if ('eswiki' not in lang_to_wikilinks) and ('eswiki' in wiki_languages):
         _add_spanish_link_manual()
-    if 'frwiki' not in lang_to_wikilinks:
+    if ('frwiki' not in lang_to_wikilinks) and ('frwiki' in wiki_languages):
         _add_french_link_manual()
     
     return lang_to_wikilinks
