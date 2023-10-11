@@ -234,7 +234,7 @@ def get_info(wiki_link: str, lang_wiki: str):
     wiki_link = wiki_link.replace("/wiki/","")
     # link is of the form 'https://en.wikipedia.org/w/index.php?title=Scottie_Barnes&oldid=910610546'
     # get the title 
-    person_id = parse_qs(urlparse(wiki_link)).query['title'][0]
+    person_id = parse_qs(urlparse(wiki_link).query).query['title'][0]
 
     person_info = {}
     person_info["langs"] = get_lang(wiki_link) # TODO: needs to be replaced.
