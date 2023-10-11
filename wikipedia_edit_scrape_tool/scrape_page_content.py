@@ -2,6 +2,7 @@ import bs4
 import requests
 import re
 from html2text import HTML2Text
+import os
 from .wiki_regexes import cut_list, cut_sup, cut_note, cut_table, cut_first_table,\
     cut_references2, cut_references, cut_references_es, cut_references_fr, cut_references_fr2, cut_references_ko, cut_references_ru,\
           double_paren, emphasis, bold, second_heading, third_heading, fourth_heading, second_heading_separation, fourth_heading2, third_heading2, all_spaces, \
@@ -41,10 +42,21 @@ def cut_ref(text, lang_wiki):
     else:
         raise ValueError("unsupported lang: "+lang_wiki)
 
-def get_category(person):
-    txt = requests.get("https://en.wikipedia.org/api/rest_v1/page/html/"+person).text.replace("\n","")
-    categories = re_category_list.findall(txt)
-    return categories
+def get_category(person_id, lang_wiki): 
+    """_summary_
+
+    Args:
+        person_id (str): Wikipedia page ID.
+
+    Returns:
+        List[str]: List of categories that the person belongs to.
+    """
+    if lang_wiki == "enwiki":
+        txt = requests.get("https://en.wikipedia.org/api/rest_v1/page/html/"+person_id).text.replace("\n","")
+        categories = re_category_list.findall(txt)
+        return categories
+    else:   
+        return [] # NOTE: haven't implemented this for other languages yet.
 
 def get_text(person_link, lang_wiki):
     # txt = requests.get("https://en.wikipedia.org/api/rest_v1/page/html/"+person).text.replace("\n","")
@@ -213,14 +225,16 @@ def get_info(wiki_link: str, lang_wiki: str):
 
     Args:
         wiki_link (str): Link to the person's wikipedia page and the person's name.
+        lang_wiki (str): 
 
     Returns:
         Tuple[str, Dict[str, Any]]: _description_
     """
     wiki_link = wiki_link.replace("/wiki/","")
+    person_id = os.path.basename(wiki_link)
     person_info = {}
     person_info["langs"] = get_lang(wiki_link) # TODO: needs to be replaced.
-    person_info["categories"] = get_category(wiki_link) # 
+    person_info["categories"] = get_category(person_id, lang_wiki) # 
     txt, section_names, section_text = get_text(wiki_link, lang_wiki)
     person_info["gender"] = get_gender_with_text(txt) # count of gendered pronouns 
     person_info["text"] = txt # unsplit text
