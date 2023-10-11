@@ -15,7 +15,7 @@ def test_get_last_snapshot(sample_edit_history_object_english_only):
     assert type(last_snapshot) == WikipageSnapshot
 
 def test_get_categories(sample_edit_history_object_english_only):
-    last_snapshot = get_last_snapshot(sample_edit_history_object_english_only)
+    last_snapshot = get_last_snapshot(sample_edit_history_object_english_only, "enwiki")
     assert "Living people" in get_categories(last_snapshot)
 
 def test_get_edit_history():
