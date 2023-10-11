@@ -313,7 +313,10 @@ def get_edit_history(en_wiki_id: str, target_languages=TARGET_LANGUAGES) -> Dict
         en_wiki_id (str): Wikipedia ID.
 
     Returns:
-        List[Tuple[str, int, Dict[str, Any]]]: The date of the snapshot, the number of bytes added since the last snapshot, and the wikipedia page content.
+        Dict[str, Any]: A dictionary containing the edit history metadata and snapshots for each language.
+    
+    Examples:
+    >>> get_edit_history("Tim_Cook", ["enwiki", "frwiki", "eswiki", "ruwiki", "kowiki"]])
     """
     person_info = {}
 
