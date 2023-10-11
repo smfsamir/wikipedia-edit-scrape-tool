@@ -13,3 +13,6 @@ def get_last_snapshot(edit_history_obj: Dict[str, Any],
     """
     final_snapshot = edit_history_obj['edit_history_snapshots_all_languages'][lang_wiki][-1]
     return final_snapshot
+
+def get_categories(snapshot: WikipageSnapshot) -> List[str]:
+    return snapshot.content['categories']
