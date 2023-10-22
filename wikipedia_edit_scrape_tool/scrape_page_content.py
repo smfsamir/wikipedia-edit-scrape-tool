@@ -65,6 +65,7 @@ def get_text(person_link, lang_wiki):
     txt = clean_html(txt, lang_wiki)
     return txt
 
+# TODO: there might be an issue here when getting the segmented text.
 def get_headings(t):
     def _get_headings(heading_list, heading="## ",second=True):
         if len(heading_list)==1:

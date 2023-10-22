@@ -272,6 +272,13 @@ def convert_edit_diff_to_int(diff_bytes: str) -> int:
     except ValueError as e:
         ipdb.set_trace()
 
+def get_snapshot_for_metadata(edit_metadata: EditMetadata, lang_wiki):
+    page_link = f"https://{_get_base_url_for_language(lang_wiki)}" + edit_metadata.timestamp_href
+    page_info = get_info(page_link, lang_wiki)
+    page_date = parse_revision_date(edit_metadata.timestamp, lang_wiki)
+    page_size = edit_metadata.curr_size_bytes
+    return WikipageSnapshot(page_date, page_size, page_info, edit_metadata.editor)
+
 def get_edit_history_for_language(lang_wiki: str, edit_metadata_list: List[EditMetadata]) -> List[WikipageSnapshot]:
     logger.info(f"Started scraping edit history for {lang_wiki}")
     initial_page_edit = edit_metadata_list[0]
