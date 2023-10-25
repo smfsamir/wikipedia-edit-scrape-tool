@@ -1,7 +1,11 @@
+import ipdb
 from urllib.parse import urlparse, parse_qs
 import bs4
 import requests
 import re
+# import dataclasses
+from typing import Dict, Union, List
+from dataclasses import dataclass
 from html2text import HTML2Text
 import os
 from .wiki_regexes import cut_list, cut_sup, cut_note, cut_table, cut_first_table,\
@@ -64,6 +68,132 @@ def get_text(person_link, lang_wiki):
     txt = requests.get(person_link).text.replace("\n","")
     txt = clean_html(txt, lang_wiki)
     return txt
+
+@dataclass
+class Paragraph:
+    clean_text: str
+
+@dataclass
+class Header:
+    text: str
+    level: int
+
+
+
+def clean_paragraph(paragraph_elem: bs4.element.Tag) -> Paragraph:
+    # use the html2text library to convert the html to text.
+    paragraph = text_maker.handle(str(paragraph_elem))
+
+    paragraph = re.sub(r"\n", " ", paragraph)
+    # remove the reference links.
+    paragraph = re.sub(r"\[\d+\]", "", paragraph)
+    # remove text that is in parentheses.
+    paragraph = re.sub(r'\([^)]*\)', "", paragraph)
+    # remove text that is in brackets.
+    paragraph = re.sub(r'\[[^)]*\]', "", paragraph)
+
+    # remove the markdown formatting for bold and italics.
+    paragraph = re.sub(r"\*\*", "", paragraph)
+    paragraph = re.sub(r"_", "", paragraph)
+    paragraph = paragraph.strip()
+    return Paragraph(paragraph)
+
+def clean_header(header_elem: bs4.element.Tag) -> Header:
+    # get the level of the header.
+    level = int(header_elem.name[1])
+    # get the text of the header.
+    header_text = header_elem.text
+    return Header(header_text, level)
+    
+def remove_non_sentences(content_div: bs4.element.Tag, wiki_lang: str) -> bs4.element.Tag:
+    hatnotes = content_div.find_all('div', class_='hatnote')
+    for hatnote in hatnotes:
+        hatnote.decompose()
+    
+    # remove mw-editsection
+    edit_sections = content_div.find_all('span', class_='mw-editsection')
+    for edit_section in edit_sections:
+        edit_section.decompose()
+
+    # remove <p> that have navbar in their class.
+    navbars = content_div.find_all('p', class_='navbar')
+    for navbar in navbars:
+        navbar.decompose()
+
+    # remove the info box if it exists.
+    info_box = content_div.find('table', class_='infobox')
+    if info_box:
+        info_box.decompose()
+    # remove all figures.
+    figures = content_div.find_all('figure')
+    for figure in figures:
+        figure.decompose()
+    
+    # remove all the mw-empty-elt paragraphs
+    empty_paragraphs = content_div.find_all('p', class_='mw-empty-elt')
+    for empty_para in empty_paragraphs:
+        empty_para.decompose()
+    # remove all the tables.
+    tables = content_div.find_all('table')
+    for table in tables:
+        table.decompose()
+    # remove all the lists.
+    lists = content_div.find_all('ul')
+    for list_ in lists:
+        list_.decompose()
+    # remove all the images.
+    images = content_div.find_all('img')
+    for image in images:
+        image.decompose()
+    # remove all the audio files.
+    audio_files = content_div.find_all('audio')
+    for audio_file in audio_files:
+        audio_file.decompose()
+    # remove all the video files.
+    video_files = content_div.find_all('video')
+    for video_file in video_files:
+        video_file.decompose()
+    # remove all the references.
+    references = content_div.find_all('div', class_='reflist')
+    for reference in references:
+        reference.decompose()
+
+# TODO: fill this in
+def _filter_empty_sections(important_content_elems: List[Union[Paragraph, Header]]) -> List[Union[Paragraph, Header]]:
+    # filter out headers where they don't enclose any paragraphs.
+    filtered_important_content_elems = []
+
+
+def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
+    #### step 1: requesting the html
+    # get the html through a request.
+
+    # do try/except 3 times.
+    for _ in range(3):
+        try:
+            html = requests.get(page_link, timeout=10).text
+            break
+        except requests.exceptions.Timeout:
+            print("timeout error")
+            continue
+
+    soup = bs4.BeautifulSoup(html, 'html.parser')
+    # keep only the #mw-content-text div.
+    content_div = soup.find('div', id='mw-content-text')
+
+    ### Step 2 removing large swathes of the page
+    remove_non_sentences(content_div, wiki_lang) # NOTE: warning, this modifies the content_div in place.
+
+    # iterate over the children of the content div. 
+    important_content_elems = []
+    print("looking for p, h2, h3")
+    for element in soup.find_all(lambda tag: tag.name in ['p', 'h2', 'h3']):
+        if element.name == 'p':
+            important_content_elems.append(clean_paragraph(element))
+        elif element.name == 'h2' or element.name == 'h3':
+            important_content_elems.append(clean_header(element))
+    # TODO: add call to filter headers for empty sections.
+    return important_content_elems
 
 # TODO: there might be an issue here when getting the segmented text.
 def get_headings(t):
