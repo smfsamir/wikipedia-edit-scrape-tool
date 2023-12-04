@@ -4,6 +4,7 @@ import bs4
 import requests
 import re
 # import dataclasses
+from nltk.tokenize import sent_tokenize
 from typing import Dict, Union, List
 from dataclasses import dataclass
 from html2text import HTML2Text
@@ -88,15 +89,23 @@ def clean_paragraph(paragraph_elem: bs4.element.Tag) -> Paragraph:
     # remove the reference links.
     paragraph = re.sub(r"\[\d+\]", "", paragraph)
     # remove text that is in parentheses.
-    paragraph = re.sub(r'\([^)]*\)', "", paragraph)
+    paragraph = re.sub(r'\([^)]*\)', "", paragraph) # TODO: this leaves a blank space, which is not ideal.
     # remove text that is in brackets.
-    paragraph = re.sub(r'\[[^)]*\]', "", paragraph)
+    paragraph = re.sub(r'\[[^)]*\]', "", paragraph) # TODO: this might also leave a blank space.
 
     # remove the markdown formatting for bold and italics.
     paragraph = re.sub(r"\*\*", "", paragraph)
     paragraph = re.sub(r"_", "", paragraph)
     paragraph = paragraph.strip()
     return Paragraph(paragraph)
+
+def retrieve_all_sentences(content_blocks: List[Union[Paragraph, Header]]) -> List[str]:
+    all_sentences = []
+    for paragraph in filter(lambda x: isinstance(x, Paragraph), content_blocks):
+        paragraph_text = paragraph.clean_text
+        sentences = sent_tokenize(paragraph_text)
+        all_sentences.extend(sentences)
+    return all_sentences
 
 def clean_header(header_elem: bs4.element.Tag) -> Header:
     # get the level of the header.

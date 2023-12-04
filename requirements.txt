@@ -1,0 +1,7 @@
+pytest
+ipdb
+bs4
+loguru
+requests
+dateparser
+html2text
