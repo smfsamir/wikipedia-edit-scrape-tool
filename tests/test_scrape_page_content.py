@@ -35,6 +35,6 @@ def test_alan_turing_paragraphs():
     content = get_text(en_link, 'enwiki')
     # get the text of the paragraph that says 'Alexander wrote of Turing's contribution:'
     turing_cont_paragraph = [p for p in content if isinstance(p, Paragraph) and 'Alexander wrote of Turing\'s contribution:' in p.clean_text][0]
-
+    print(turing_cont_paragraph.clean_text)
+    paragraphs = [p for p in content if isinstance(p, Paragraph)]
     print(content[2])
-    ipdb.set_trace()
