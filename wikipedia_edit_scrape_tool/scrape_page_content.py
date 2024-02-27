@@ -180,7 +180,7 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     # do try/except 3 times.
     for _ in range(3):
         try:
-            html = requests.get(page_link, timeout=10).text
+            html = requests.get(page_link, timeout=(3.05, 5)).text
             break
         except requests.exceptions.Timeout:
             print("timeout error")
