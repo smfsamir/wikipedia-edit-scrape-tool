@@ -1,3 +1,4 @@
+import loguru
 import ipdb
 from urllib.parse import urlparse, parse_qs
 import bs4
@@ -14,6 +15,7 @@ from .wiki_regexes import cut_list, cut_sup, cut_note, cut_table, cut_first_tabl
           double_paren, emphasis, bold, second_heading, third_heading, fourth_heading, second_heading_separation, fourth_heading2, third_heading2, all_spaces, \
             punctuations, link, link_number, paren, paren_fr, paren_zh2
 
+logger = loguru.logger
 re_category_list = re.compile(r'<link rel="mw:PageProp\/Category" href=".\/(Category:.*?)"')
 
 text_maker = HTML2Text()
@@ -180,7 +182,7 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     # do try/except 3 times.
     for _ in range(3):
         try:
-            html = requests.get(page_link, timeout=(3.05, 5)).text
+            html = requests.get(page_link, timeout=(3.05, 5)).text # first is connect timeout, second is read timeout.
             break
         except requests.exceptions.Timeout:
             print("timeout error")
@@ -197,6 +199,10 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     important_content_elems = []
     print("looking for p, h2, h3")
     for element in soup.find_all(lambda tag: tag.name in ['p', 'h2', 'h3']):
+        if element.parent.name == 'blockquote':
+            logger.info(f"Found a quote: appending to previous paragraph.")
+            quote_paragraph = clean_paragraph(element)
+            important_content_elems[-1] = Paragraph(important_content_elems[-1].clean_text + ' "' + quote_paragraph.clean_text + '"')
         if element.name == 'p':
             important_content_elems.append(clean_paragraph(element))
         elif element.name == 'h2' or element.name == 'h3':
