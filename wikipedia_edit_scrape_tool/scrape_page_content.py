@@ -19,11 +19,6 @@ from .wiki_regexes import cut_list, cut_sup, cut_note, cut_table, cut_first_tabl
 logger = loguru.logger
 re_category_list = re.compile(r'<link rel="mw:PageProp\/Category" href=".\/(Category:.*?)"')
 
-text_maker = HTML2Text()
-text_maker.ignore_links = True
-text_maker.ignore_images = True
-text_maker.ignore_tables = True
-text_maker.ignore_emphasis = False
 
 def get_lang(person_link):
     try:
@@ -85,6 +80,11 @@ class Header:
 
 
 def clean_paragraph(paragraph_elem: bs4.element.Tag) -> Paragraph:
+    text_maker = HTML2Text()
+    text_maker.ignore_links = True
+    text_maker.ignore_images = True
+    text_maker.ignore_tables = True
+    text_maker.ignore_emphasis = False
     # use the html2text library to convert the html to text.
     paragraph = text_maker.handle(str(paragraph_elem))
 
@@ -169,6 +169,11 @@ def remove_non_sentences(content_div: bs4.element.Tag, wiki_lang: str) -> bs4.el
     references = content_div.find_all('div', class_='reflist')
     for reference in references:
         reference.decompose()
+    
+    # remove boite-grise class
+    boite_grise = content_div.find_all('div', class_='boite-grise')
+    for bg in boite_grise:
+        bg.decompose()
 
 # TODO: fill this in
 def _filter_empty_sections(important_content_elems: List[Union[Paragraph, Header]]) -> List[Union[Paragraph, Header]]:
