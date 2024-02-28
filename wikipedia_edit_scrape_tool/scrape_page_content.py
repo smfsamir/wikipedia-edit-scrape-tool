@@ -174,6 +174,12 @@ def remove_non_sentences(content_div: bs4.element.Tag, wiki_lang: str) -> bs4.el
     boite_grise = content_div.find_all('div', class_='boite-grise')
     for bg in boite_grise:
         bg.decompose()
+    
+    # remove infobox
+    infobox = content_div.find_all('div', class_='infobox')
+    for ib in infobox:
+        ib.decompose()
+
 
 # TODO: fill this in
 def _filter_empty_sections(important_content_elems: List[Union[Paragraph, Header]]) -> List[Union[Paragraph, Header]]:

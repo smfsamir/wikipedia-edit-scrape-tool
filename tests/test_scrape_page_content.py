@@ -44,4 +44,6 @@ def test_caroline_mecary_paragraphs():
     fr_link = f"https://fr.wikipedia.org/wiki/{person_id}"
     content = get_text(fr_link, 'frwiki')
     paragraphs = [p for p in content if isinstance(p, Paragraph)]
+    # find the first paragraph containing the text '31 mars 2014'
+    first_paragraph = [p for p in paragraphs if '31 mars 2014' in p.clean_text][0]
     ipdb.set_trace()
