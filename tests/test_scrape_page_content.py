@@ -38,3 +38,10 @@ def test_alan_turing_paragraphs():
     print(turing_cont_paragraph.clean_text)
     paragraphs = [p for p in content if isinstance(p, Paragraph)]
     print(content[2])
+
+def test_caroline_mecary_paragraphs():
+    person_id = 'Caroline_Mécary'
+    fr_link = f"https://fr.wikipedia.org/wiki/{person_id}"
+    content = get_text(fr_link, 'frwiki')
+    paragraphs = [p for p in content if isinstance(p, Paragraph)]
+    ipdb.set_trace()
