@@ -176,7 +176,7 @@ def remove_non_sentences(content_div: bs4.element.Tag, wiki_lang: str) -> bs4.el
         bg.decompose()
     
     # remove infobox
-    infobox = content_div.find_all('div', class_='infobox')
+    infobox = content_div.find_all('div', class_='infobox_v3')
     for ib in infobox:
         ib.decompose()
 
