@@ -186,7 +186,7 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
             session = HTMLSession()
             # html = requests.get(page_link, timeout=(3.05, 5)).html.render() # first is connect timeout, second is read timeout.
             response = session.get(page_link)
-            response.html.render() # first is connect timeout, second is read timeout.
+            response.html.render(sleep=5) # first is connect timeout, second is read timeout.
             html = response.html.raw_html
             break
         except requests.exceptions.Timeout:
