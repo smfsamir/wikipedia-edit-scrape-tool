@@ -3,6 +3,7 @@ import ipdb
 from urllib.parse import urlparse, parse_qs
 import bs4
 import requests
+from requests_html import HTMLSession
 import re
 # import dataclasses
 from nltk.tokenize import sent_tokenize
@@ -182,7 +183,11 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     # do try/except 3 times.
     for _ in range(3):
         try:
-            html = requests.get(page_link, timeout=(3.05, 5)).text # first is connect timeout, second is read timeout.
+            session = HTMLSession()
+            # html = requests.get(page_link, timeout=(3.05, 5)).html.render() # first is connect timeout, second is read timeout.
+            response = session.get(page_link)
+            response.html.render() # first is connect timeout, second is read timeout.
+            html = response.html.raw_html
             break
         except requests.exceptions.Timeout:
             print("timeout error")
