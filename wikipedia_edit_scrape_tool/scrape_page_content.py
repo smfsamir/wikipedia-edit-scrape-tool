@@ -219,7 +219,7 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
             logger.info(f"Found a quote: appending to previous paragraph.")
             quote_paragraph = clean_paragraph(element)
             important_content_elems[-1] = Paragraph(important_content_elems[-1].clean_text + ' "' + quote_paragraph.clean_text + '"')
-        if element.name == 'p':
+        elif element.name == 'p':
             important_content_elems.append(clean_paragraph(element))
         elif element.name == 'h2' or element.name == 'h3':
             important_content_elems.append(clean_header(element))
