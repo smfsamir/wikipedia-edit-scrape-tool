@@ -19,7 +19,6 @@ from .wiki_regexes import cut_list, cut_sup, cut_note, cut_table, cut_first_tabl
 logger = loguru.logger
 re_category_list = re.compile(r'<link rel="mw:PageProp\/Category" href=".\/(Category:.*?)"')
 
-
 def get_lang(person_link):
     try:
         json = requests.get("https://en.wikipedia.org/api/rest_v1/page/metadata/"+person_link).json()
