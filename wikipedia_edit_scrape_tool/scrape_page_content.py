@@ -186,7 +186,7 @@ def _filter_empty_sections(important_content_elems: List[Union[Paragraph, Header
     filtered_important_content_elems = []
 
 
-def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
+async def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     #### step 1: requesting the html
     # get the html through a request.
 
@@ -196,7 +196,7 @@ def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
             session = HTMLSession()
             # html = requests.get(page_link, timeout=(3.05, 5)).html.render() # first is connect timeout, second is read timeout.
             response = session.get(page_link)
-            response.html.render(timeout=20, sleep=5) # first is connect timeout, second is read timeout.
+            await response.html.render(timeout=20, sleep=5) # first is connect timeout, second is read timeout.
             html = response.html.raw_html
             break
         except requests.exceptions.Timeout:
