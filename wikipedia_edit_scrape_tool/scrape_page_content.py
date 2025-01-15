@@ -76,8 +76,6 @@ class Header:
     text: str
     level: int
 
-
-
 def clean_paragraph(paragraph_elem: bs4.element.Tag) -> Paragraph:
     text_maker = HTML2Text()
     text_maker.ignore_links = True
@@ -185,10 +183,19 @@ def _filter_empty_sections(important_content_elems: List[Union[Paragraph, Header
     # filter out headers where they don't enclose any paragraphs.
     filtered_important_content_elems = []
 
+class DisambiguationPageError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
-async def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
+
+def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
     #### step 1: requesting the html
     # get the html through a request.
+    if wiki_lang == "enwiki":
+        en_wiki_bio_id =  page_link.split("/")[-1]
+        categories = get_category(en_wiki_bio_id, wiki_lang)
+        if 'Category:All_disambiguation_pages' in categories:
+            raise DisambiguationPageError(f"Bio for {en_wiki_bio_id} is a disambiguation page.")
 
     # do try/except 3 times.
     for _ in range(3):
@@ -196,12 +203,14 @@ async def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
             session = HTMLSession()
             # html = requests.get(page_link, timeout=(3.05, 5)).html.render() # first is connect timeout, second is read timeout.
             response = session.get(page_link)
-            await response.html.render(timeout=20, sleep=5) # first is connect timeout, second is read timeout.
+            response.html.render(sleep=5) # first is connect timeout, second is read timeout.
             html = response.html.raw_html
             break
         except requests.exceptions.Timeout:
             print("timeout error")
             continue
+    # close the session.
+    session.close() # seems necessary, otherwise we get a crazy memory leak.
 
     soup = bs4.BeautifulSoup(html, 'html.parser')
     # keep only the #mw-content-text div.
@@ -217,7 +226,12 @@ async def get_text(page_link, wiki_lang) -> List[Union[Paragraph, Header]]:
         if element.parent.name == 'blockquote':
             logger.info(f"Found a quote: appending to previous paragraph.")
             quote_paragraph = clean_paragraph(element)
-            important_content_elems[-1] = Paragraph(important_content_elems[-1].clean_text + ' "' + quote_paragraph.clean_text + '"')
+            if isinstance(important_content_elems[-1], Paragraph):
+                important_content_elems[-1] = Paragraph(important_content_elems[-1].clean_text + ' "' + quote_paragraph.clean_text + '"')
+            elif isinstance(important_content_elems[-1], Header):
+                important_content_elems.append(quote_paragraph)
+            else:
+                raise ValueError("Unexpected type of element.")
         elif element.name == 'p':
             important_content_elems.append(clean_paragraph(element))
         elif element.name == 'h2' or element.name == 'h3':
@@ -260,6 +274,7 @@ def get_headings(t):
         h_text = all_spaces.sub(" ",h_text)
         segmented["second"][i][1] = h_text
     return segmented
+
 
 def _verify_previous_revision_info(revision_info_div: bs4.element.Tag, lang: str):
     if lang == "enwiki":

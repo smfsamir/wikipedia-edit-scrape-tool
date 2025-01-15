@@ -34,8 +34,19 @@ def test_alan_turing_paragraphs():
     en_link = f"https://en.wikipedia.org/wiki/{person_id}"
     content = get_text(en_link, 'enwiki')
     # get the text of the paragraph that says 'Alexander wrote of Turing's contribution:'
-    turing_cont_paragraph = [p for p in content if isinstance(p, Paragraph) and 'Alexander wrote of Turing\'s contribution:' in p.clean_text][0]
+    turing_cont_paragraph = [p for p in content if isinstance(p, Paragraph) and 'Alexander wrote of Turing\'s contribution:' in p.clean_text]
     print(turing_cont_paragraph.clean_text)
+    paragraphs = [p for p in content if isinstance(p, Paragraph)]
+    print(content[2])
+
+def test_alan_turing_paragraphs_fr():
+    person_id = 'Alan_Turing'
+    fr_link = f"https://fr.wikipedia.org/wiki/{person_id}"
+    content = get_text(fr_link, 'frwiki')
+    # get the text of the paragraph that says 'Alexander wrote of Turing's contribution:'
+    turing_cont_paragraph = [p for p in content if isinstance(p, Paragraph) and 'absolument indispensable' in p.clean_text]
+    assert len(turing_cont_paragraph) == 1
+    print(turing_cont_paragraph[0].clean_text)
     paragraphs = [p for p in content if isinstance(p, Paragraph)]
     print(content[2])
 
